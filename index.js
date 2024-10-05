@@ -8,6 +8,9 @@ const port = process.env.PORT || 3000; // Usa el puerto proporcionado por Vercel
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// Servir archivos estáticos desde la carpeta 'fe'
+app.use(express.static(path.join(__dirname, 'fe'))); // Asegúrate de que 'fe' es la carpeta donde están tus archivos estáticos
+
 // Ruta para obtener productos
 app.get('/api/products', async (req, res) => {
   res.send(await repository.read());
@@ -37,14 +40,12 @@ app.post('/api/pay', async (req, res) => {
   }
 });
 
-// Ruta para servir el archivo index.html
+// Ruta para servir el archivo index.html (opcional, ya que lo estamos sirviendo estáticamente)
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'fe', 'index.html')); // Asegúrate de que 'index.html' esté en la carpeta 'fe'
 });
 
-// Servir archivos estáticos
-app.use("/", express.static('fe'));
-
+// Escucha en el puerto especificado
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
