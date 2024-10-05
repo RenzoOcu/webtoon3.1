@@ -4,79 +4,71 @@ let carrito = [];
 let total = 0;
 
 function add(productId, price) {
-
     const product = productList.find(p => p.id === productId);
     product.stock--;
 
-    console.log(productId, price);
     carrito.push(productId);
-    total = total + price;
+    total += price;
     document.getElementById("checkout").innerHTML = `Pagar $${total}`;
     displayProducts();
-
-
 }
 
 async function pay() {
-
     try {
-        const productList = await (await fetch("/api/pay", {
-            method: "post",
+        const response = await fetch("/api/pay", {
+            method: "POST",
             body: JSON.stringify(carrito),
             headers: {
                 "Content-Type": "application/json"
             }
+        });
 
+        if (!response.ok) {
+            throw new Error("Error en el proceso de pago");
+        }
 
-        })).json();
+        productList = await response.json();
+        carrito = [];
+        total = 0;
+        document.getElementById("checkout").innerHTML = `Pagar $${total}`;
+        await fetchProducts();
+    } catch (error) {
+        window.alert("Sin stock o error en el pago");
+        console.error("Error en el pago:", error);
     }
-
-    catch {
-        window.alert("sin stock");
-    }
-    carrito = [];
-    total = 0;
-    await fecthProducts();
-    document.getElementById("checkout").innerHTML = `Pagar $${total}`;
-
-    //window.alert(products.join(",\n"));
 }
 
-//-----
 function displayProducts() {
-
     let productsHTML = '';
-
     productList.forEach(p => {
-
-        let buttonHTML = `<button class="button-add"onclick="add(${p.id},${p.price})">agregar</button>`;
+        let buttonHTML = `<button class="button-add" onclick="add(${p.id}, ${p.price})">Agregar</button>`;
         if (p.stock <= 0) {
-            buttonHTML = `<button disabled class="button-add disabled "onclick="add(${p.id},${p.price})">sin stock :/</button>`;
+            buttonHTML = `<button disabled class="button-add disabled">Sin stock :/</button>`;
         }
-        productsHTML +=
-            `<div class="product-container">
-                    <h3>${p.name}</h3>
-                    <img src="${p.image}" />
-                    <h1>$${p.price}</h1>
-                    ${buttonHTML}
-                </div>`
+        productsHTML += `
+            <div class="product-container">
+                <h3>${p.name}</h3>
+                <img src="${p.image}" alt="${p.name}" />
+                <h1>$${p.price}</h1>
+                ${buttonHTML}
+            </div>`;
     });
     document.getElementById('page-content').innerHTML = productsHTML;
-
 }
 
-async function fecthProducts(){
-    productList = await (await fetch("/api/products")).json();
-    displayProducts();
-
+async function fetchProducts() {
+    try {
+        const response = await fetch("/api/products");
+        if (!response.ok) {
+            throw new Error("Error al cargar los productos");
+        }
+        productList = await response.json();
+        displayProducts();
+    } catch (error) {
+        console.error("Error al cargar los productos:", error);
+    }
 }
-
 
 window.onload = async () => {
-
-    await fecthProducts();
-    
-   
-
-
-}
+    await fetchProducts();
+};
