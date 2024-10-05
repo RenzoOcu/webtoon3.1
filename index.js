@@ -42,7 +42,7 @@ app.post('/api/pay', async (req, res) => {
 
 // Ruta para servir el archivo index.html (opcional, ya que lo estamos sirviendo estáticamente)
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'fe', 'index.html')); // Asegúrate de que 'index.html' esté en la carpeta 'fe'
+  res.sendFile(path.join(__dirname, 'fe', 'index.html','scripts.js')); // Asegúrate de que 'index.html' esté en la carpeta 'fe'
 });
 
 // Escucha en el puerto especificado
